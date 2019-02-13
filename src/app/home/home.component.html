@@ -1,0 +1,138 @@
+<!-- jumbotron -->
+<nav class="navbar navbar-light bg-light">
+  <div></div>
+  <button
+    *ngIf="firestoreService.currentUser"
+    type="button"
+    class="btn btn-outline-danger"
+    (click)="firestoreService.logout()"
+  >
+    Logout
+  </button>
+  <button
+    *ngIf="!firestoreService.currentUser"
+    type="button"
+    class="btn btn-outline-success"
+    (click)="openModal(template)"
+  >
+    Sign In
+  </button>
+</nav>
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">
+      Welcome, {{ firestoreService.currentUser || 'guest' }}!
+    </h1>
+    <h3 class="lead">This is a simple real-time food ordering application.</h3>
+    <p>
+      This app helps your colleagues make their order, and most importantly it
+      also displays everyone's money share.
+    </p>
+    <hr />
+    <p>Few tips:</p>
+    <ul>
+      <li>
+        Increment the quantity of already existing items, do not create
+        duplicates.
+      </li>
+      <li>
+        This is a very simple, two-days-development, and super-easy to break
+        App. So please don't break it. (That won't make you a hacker, just an
+        annoying person with no friends)
+      </li>
+    </ul>
+    <hr class="my-4" />
+    <p>
+      Please report bugs/suggestion to the
+      <a href="https://github.com/aldokkani/food"> <strong>GitHub</strong></a>
+      Repo
+    </p>
+  </div>
+</div>
+
+<!-- main -->
+<div class="container">
+  <div
+    *ngIf="!firestoreService.currentUser"
+    class="d-flex justify-content-center"
+  >
+    <button class="btn btn-secondary btn-lg" (click)="openModal(template)">
+      Get started!
+    </button>
+  </div>
+
+  <div *ngIf="firestoreService.currentUser">
+    <button class="btn btn-dark btn-lg" (click)="openModal(orderTemplate)">
+      Create new order
+    </button>
+    <div *ngIf="!orders.length" class="alert alert-warning" role="alert">
+      No orders right now, create a new one to start.
+    </div>
+    <div *ngFor="let ord of orders; let i = index" class="card text-center">
+      <div class="card-body">
+        <h5 class="card-title">{{ ord.name | uppercase }}</h5>
+        <!-- <p class="card-text">
+          With supporting text below as a natural lead-in to additional content.
+        </p> -->
+        <a [routerLink]="['/order', ord.id]" class="btn btn-secondary"
+          >Go to order</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #template>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="col-md-9">
+        <input
+          #username
+          type="text"
+          class="form-control"
+          placeholder="Enter your name"
+        />
+      </div>
+      <div class="col-md-3">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="signIn(username.value)"
+        >
+          Sign In
+        </button>
+      </div>
+    </div>
+    <div *ngIf="message" class="form-row">
+      <div class="col">
+        <div class="alert alert-danger" role="alert">
+          {{ message }}
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #orderTemplate>
+  <div class="modal-body">
+    <div class="form-row">
+      <div class="col-md-9">
+        <input
+          #orderName
+          type="text"
+          class="form-control"
+          placeholder="Resturant name/ Company name"
+        />
+      </div>
+      <div class="col-md-3">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="createOrder(orderName.value)"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

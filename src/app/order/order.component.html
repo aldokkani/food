@@ -1,0 +1,212 @@
+<div class="container-fluid">
+  <nav class="navbar navbar-light bg-light">
+    <div>
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="result = {}; fees = 0; openModal(mathTemplate)"
+        style="margin-right:1rem"
+      >
+        Get Check
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-danger"
+        (click)="openModal(deleteTemplate)"
+      >
+        Delete Order
+      </button>
+    </div>
+    <button type="button" class="btn btn-outline-danger" (click)="firestoreService.logout()">Logout</button>
+  </nav>
+  <h4>Add New Item</h4>
+  <form class="form-inline" [formGroup]="orderItemForm" (ngSubmit)="addItem()">
+    <label class="sr-only" for="inlineFormInputName1">Item</label>
+    <input
+      type="text"
+      class="form-control mb-2 mr-sm-2"
+      id="inlineFormInputName1"
+      placeholder="Item Name i.e. Btngan*"
+      formControlName="item"
+      required
+    />
+
+    <label class="sr-only" for="inlineFormInputName2">Quantity</label>
+    <input
+      type="number"
+      class="form-control mb-2 mr-sm-2"
+      id="inlineFormInputName2"
+      placeholder="Quantity*"
+      formControlName="quantity"
+    />
+
+    <button type="submit" class="btn btn-primary mb-2">Add to Order</button>
+  </form>
+
+  <div class="row">
+    <div class="col-sm-8">
+      <h4>Main Order</h4>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Item</th>
+            <th scope="col">Item Price (Unit Price)</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Who Ordered</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of (order | keyvalue); let i = index">
+            <th scope="row">{{ i + 1 }}</th>
+            <td>{{ item.value.item }}</td>
+            <td>
+              <div class="input-group mb-3">
+                <input
+                  class="form-control"
+                  type="number"
+                  [value]="item.value.price || 0"
+                  (blur)="onPrice($event, item.key)"
+                />
+                <div class="input-group-append">
+                  <span class="input-group-text">$</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <input
+                class="form-control"
+                type="number"
+                [value]="item.value.quantity"
+                (blur)="onChange($event, item.key, item.value.quantity)"
+              />
+            </td>
+            <td>{{ getOwners(item.value.owners) | json }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-4">
+      <h4>Your Order</h4>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Item</th>
+            <th scope="col">Quantity</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of (myOrder | keyvalue); let i = index">
+            <th scope="row">{{ i + 1 }}</th>
+            <td>{{ item.value.item }}</td>
+            <td>
+              <input
+                class="form-control"
+                type="number"
+                [value]="getOwnQuantity(item.key)"
+                (blur)="onChange($event, item.key, item.value.quantity)"
+              />
+            </td>
+            <td>
+              <button (click)="deleteItem(item.key)" class="btn btn-danger">
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #deleteTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Delete Order</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="modalRef.hide()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-danger" role="alert">
+      Are you really sure? You cannot undo this action, George might eat you
+      alive if he's hungery and you are cancelling the order!
+    </div>
+    <button
+      type="button"
+      class="btn btn-danger btn-sm btn-block"
+      (click)="deleteOrder(); modalRef.hide()"
+    >
+      Let George kills me!
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #mathTemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Check</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="modalRef.hide()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="alert alert-warning" role="alert">
+      Make sure that you update the price for all order's items.
+    </div>
+    <div class="form-row align-items-center">
+      <div class="col-auto">
+        <label class="sr-only" for="inlineFormInput">Additional Fees:</label>
+        <input
+          #feesRef
+          type="number"
+          class="form-control mb-2"
+          id="inlineFormInput"
+          placeholder="Additional Fees"
+        />
+      </div>
+      <div class="col-auto">
+        <button
+          type="button"
+          (click)="fees = feesRef.value; result = {}; doMath()"
+          class="btn btn-primary mb-2"
+        >
+          Do Math
+        </button>
+      </div>
+    </div>
+    <hr />
+    <ul class="list-group">
+      <div
+        *ngIf="!Object.keys(result).length && fees"
+        class="d-flex align-items-center"
+      >
+        <strong>Doing math...</strong>
+        <div
+          class="spinner-border ml-auto text-primary"
+          role="status"
+          aria-hidden="true"
+        ></div>
+      </div>
+      <li
+        *ngFor="let person of (result | keyvalue)"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        {{ person.key }}
+        <span class="badge badge-primary badge-pill">{{
+          person.value | currency
+        }}</span>
+      </li>
+    </ul>
+  </div>
+</ng-template>
