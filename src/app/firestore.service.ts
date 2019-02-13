@@ -23,7 +23,7 @@ export class FirestoreService {
     this.ordersCollection = db.collection('orders');
     this.itemsCollection = db.collection('items');
 
-    this.currentUser = localStorage.getItem('foodUser');
+    this.currentUser = localStorage.getItem('currentUser');
   }
 
   logout() {
@@ -31,5 +31,23 @@ export class FirestoreService {
     localStorage.clear();
     this.currentUser = undefined;
     this.router.navigate(['/']);
+  }
+
+  async signIn(username: string): Promise<boolean> {
+    return this.usersCollection
+      .doc(username)
+      .get()
+      .then(docSnapshot => {
+        console.log(docSnapshot);
+        if (docSnapshot.exists) {
+          return false;
+        } else {
+          docSnapshot.ref.set({}).then(d => console.log(d));
+          localStorage.setItem('currentUser', username);
+          this.currentUser = username;
+          return true;
+        }
+      })
+      .catch(() => false);
   }
 }

@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private modalService: BsModalService,
-    public firestoreService: FirestoreService,
+    public firestoreService: FirestoreService
   ) {}
 
   ngOnInit() {
@@ -38,24 +38,14 @@ export class HomeComponent implements OnInit {
     this.modalRef = this.modalService.show(template);
   }
 
-  signIn(username: string) {
+  async signIn(username: string) {
     if (username !== '') {
-      this.firestoreService.usersCollection
-        .doc(username)
-        .get()
-        .then(docSnapshot => {
-          if (docSnapshot.exists) {
-            this.message =
-              'User already exists, please choose a uniqe username';
-          } else {
-            docSnapshot.ref.set({});
-            this.modalRef.hide();
-            this.message = '';
-            localStorage.setItem('foodUser', username);
-            this.firestoreService.currentUser = username;
-          }
-        })
-        .catch(error => console.error('Error adding document: ', error));
+      if (await this.firestoreService.signIn(username)) {
+        this.modalRef.hide();
+        this.message = '';
+      } else {
+        this.message = 'User already exists, please choose a uniqe username';
+      }
     }
   }
 }
