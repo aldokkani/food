@@ -4,7 +4,7 @@
       <button
         type="button"
         class="btn btn-outline-primary"
-        (click)="result = {}; fees = 0; openModal(mathTemplate)"
+        (click)="result = {}; openModal(mathTemplate)"
         style="margin-right:1rem"
       >
         Get Check
@@ -172,6 +172,7 @@
           type="number"
           class="form-control mb-2"
           id="inlineFormInput"
+          [value]="fees"
           placeholder="Additional Fees"
         />
       </div>
@@ -188,7 +189,7 @@
     <hr />
     <ul class="list-group">
       <div
-        *ngIf="!Object.keys(result).length && fees"
+        *ngIf="spinning"
         class="d-flex align-items-center"
       >
         <strong>Doing math...</strong>

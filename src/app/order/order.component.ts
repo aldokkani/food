@@ -15,9 +15,9 @@ export class OrderComponent implements OnInit {
   orderId: string;
   orderItemForm: FormGroup;
   modalRef: BsModalRef;
-  Object = Object;
   result: any = {};
   fees = 0;
+  spinning = false;
 
   constructor(
     public firestoreService: FirestoreService,
@@ -29,6 +29,12 @@ export class OrderComponent implements OnInit {
 
   ngOnInit() {
     this.orderId = this.route.snapshot.params.id;
+
+    this.firestoreService.ordersCollection
+      .doc(this.orderId)
+      .get()
+      .then(docSnapshot => (this.fees = docSnapshot.data().fees || 0));
+
     this.firestoreService.itemsCollection
       .where('order', '==', this.orderId)
       .onSnapshot(querySnapshot => {
@@ -141,7 +147,13 @@ export class OrderComponent implements OnInit {
   }
 
   doMath() {
+    this.firestoreService.ordersCollection
+      .doc(this.orderId)
+      .update({ fees: this.fees });
+
+    this.spinning = true;
     const res = {};
+
     this.firestoreService.itemsCollection
       .where('order', '==', this.orderId)
       .get()
@@ -160,6 +172,7 @@ export class OrderComponent implements OnInit {
           }
         }
         this.result = res;
+        this.spinning = false;
       });
   }
 
