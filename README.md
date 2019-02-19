@@ -23,3 +23,6 @@ export const environment = {
   }
 };
 ```
+
+## Build
+ng build --prod --output-path docs --base-href https://aldokkani.github.io/food/
