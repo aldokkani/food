@@ -49,17 +49,25 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th scope="col">#</th>
+            <th scope="col">Total</th>
             <th scope="col">Item</th>
-            <th scope="col">Item Price (Unit Price)</th>
             <th scope="col">Quantity</th>
+            <th scope="col">Item Price (Unit Price)</th>
             <th scope="col">Who Ordered</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of (order | keyvalue); let i = index">
-            <th scope="row">{{ i + 1 }}</th>
+            <th scope="row">{{ item.value.quantity }}</th>
             <td>{{ item.value.item }}</td>
+            <td>
+              <input
+                class="form-control"
+                type="number"
+                [value]="item.value.quantity"
+                (blur)="onChange($event, item.key, item.value.quantity)"
+              />
+            </td>
             <td>
               <div class="input-group mb-3">
                 <input
@@ -72,14 +80,6 @@
                   <span class="input-group-text">$</span>
                 </div>
               </div>
-            </td>
-            <td>
-              <input
-                class="form-control"
-                type="number"
-                [value]="item.value.quantity"
-                (blur)="onChange($event, item.key, item.value.quantity)"
-              />
             </td>
             <td>{{ getOwners(item.value.owners) | json }}</td>
           </tr>
