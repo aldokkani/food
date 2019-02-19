@@ -142,22 +142,25 @@ export class OrderComponent implements OnInit {
 
   doMath() {
     const res = {};
-    this.firestoreService.itemsCollection.get().then(querySnapshot => {
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        data.owners.reduce((acum, cur) => {
-          acum[cur] = (acum[cur] || 0) + (data.price || 0);
-          return acum;
-        }, res);
-      });
-      const feesShare = this.fees / (Object.keys(res).length || 1);
-      for (const key in res) {
-        if (res.hasOwnProperty(key)) {
-          res[key] += feesShare;
+    this.firestoreService.itemsCollection
+      .where('order', '==', this.orderId)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          data.owners.reduce((acum, cur) => {
+            acum[cur] = (acum[cur] || 0) + (data.price || 0);
+            return acum;
+          }, res);
+        });
+        const feesShare = this.fees / (Object.keys(res).length || 1);
+        for (const key in res) {
+          if (res.hasOwnProperty(key)) {
+            res[key] += feesShare;
+          }
         }
-      }
-      this.result = res;
-    });
+        this.result = res;
+      });
   }
 
   deleteOrder() {
