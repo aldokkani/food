@@ -78,7 +78,9 @@ export class OrderComponent implements OnInit {
     const newValue = +event.target.value;
     const updates: any = { quantity: newValue };
 
-    if (newValue > oldValue) {
+    if (newValue === oldValue) {
+      return;
+    } else if (newValue > oldValue) {
       updates.owners = [
         ...this.order[id].owners,
         ...Array(newValue - oldValue).fill(this.firestoreService.currentUser)
