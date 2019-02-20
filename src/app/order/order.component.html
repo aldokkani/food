@@ -64,6 +64,7 @@
               <input
                 class="form-control"
                 type="number"
+                min="0"
                 [value]="item.value.quantity"
                 (blur)="onChange($event, item.key, item.value.quantity)"
               />
@@ -73,6 +74,8 @@
                 <input
                   class="form-control"
                   type="number"
+                  step="0.01"
+                  min="0"
                   [value]="item.value.price || 0"
                   (blur)="onPrice($event, item.key)"
                 />
